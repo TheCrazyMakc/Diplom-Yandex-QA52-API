@@ -74,7 +74,12 @@ def registered_user():
         payload = UserGenerator.generate_user()
         with allure.step(f"POST {Urls.CREATE_USER_URL} | регистрация пользователя"):
             response = requests.post(Urls.CREATE_USER_URL, json=payload)
-        assert response.status_code == HTTPStatus.OK
+        if response.status_code != HTTPStatus.OK:
+            pytest.fail(
+                f"Setup failed: не удалось зарегистрировать пользователя — "
+                f"{response.status_code} {response.text}",
+                pytrace=False,
+            )
         access_token = response.json().get("accessToken")
 
     yield {"payload": payload, "access_token": access_token}
